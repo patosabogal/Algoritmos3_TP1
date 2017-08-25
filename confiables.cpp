@@ -1,12 +1,14 @@
-int main(int argc, char const *argv[]){
-	
+#include "backtracking.cpp"
+
+int main(int argc, char const *argv[]){	
 	// Chequeo que la cantidad de parametros este bien
 	if(argc != 3){
-		printf("%s\n", "El algoritmo toma un file de entrada y un file de \
-			salida como parametros");
+		printf("%s\n", "El algoritmo toma un file de entrada y \
+			       	un file de salida como parametros");
 	}
 
-	// Guardo el archivo de entrada y de salida en sus respectivas variables
+	// Guardo el archivo de entrada y de salida en sus respectivas
+	// variables
 	char* entrada = argv[1];
 	char* salida = argv[2];
 
@@ -24,13 +26,14 @@ int main(int argc, char const *argv[]){
 	// Leo el archivo hasta llegar al 0 0 que marca el final
 	while(personas != 0 && respuestas!= 0){
 		
-		// Creo la matriz "votos" donde voy a guardar las respuestas de cada
-		// persona en la votacion. En la posicion votos[i][j] guardo "1" o "-1"
-		// si la persona "i" voto que el sujeto "j" es confiable o no confiable
-		// respectivamente; En caso de que no lo haya votado quedara el 0 de la
-		// inicializacion
+		// Creo la matriz "votos" donde voy a guardar las 
+		// respuestas de cada persona en la votacion.
+		// En la posicion votos[i][j] guardo "1" o "-1" si la 
+		// persona "i" voto que el sujeto "j" es confiable o
+		// no confiable respectivamente; En caso de que no lo haya
+		//  votado quedara el 0 de la inicializacion de la matriz
 
-		int votos[personas][personas] = crear_matriz_de_ceros(personas,personas);
+		int votos[personas][personas] = crearMatrizDeCeros(personas,personas);
 
 		for (int r = 0; r < respuestas; r++){
 
@@ -46,7 +49,8 @@ int main(int argc, char const *argv[]){
 			}
 		}
 
-		// Resuelvo este caso con backtracking y guardo el resultado en el output
+		// Resuelvo este caso con backtracking y guardo el resultado 
+        // en el output
 		int res = algoritmo_re_piola_de_back_tracking(votos);
 
 		std::fstream out;
@@ -60,7 +64,7 @@ int main(int argc, char const *argv[]){
 }
 
 // Crea una matriz llena de 0s...
-int[][] crear_matriz_de_ceros(int filas, int columnas){
+int[][] crearMatrizDeCeros(int filas, int columnas){
 
 	int matriz[filas][columnas];
 
