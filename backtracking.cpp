@@ -1,98 +1,90 @@
 #include <vector>
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
 
-// Funcion para ver si es confiable o no, devuelve 1, -1 o 0
-// si es confiable, ortiva o no lo voto nadie respectivamente.
-int esConfiable(std::vector<char> confiables, std::vector<char> ortivas, int nodo , std::vector<std::vector<int> > votos){
+void imprimirVector(std::vector<int> v){
 
-	int confiabilidad = 0;
-	// Me fijo que no haya votado como confiables a algun ortivas
-	// o que haya votado ortiva a algun confiables
-	bool votosConsistentes = true;
-	for(int i = 0; i < confiables.size(); ++i){
-		if(votos[nodo][i] < 0){
-			votosConsistentes = false;
-			break;
-		}
+	for (int i = 0; i < v.size(); ++i)
+	{
+		std::cout << v.at(i) << " ";
 	}
 
-	// Si voto consistentemente, chequeo que dicen los confiables de el.
-	if(votosConsistentes){
-		for(int i = 0; i < ortivas.size(); ++i){
-			if(votos[nodo][i] > 0){
-				votosConsistentes == false;
-				break;
-			}
-		}
-	
-		// Me fijo que dicen los confiables
-		int opinionConfiables = 0;
-		for (int i = 0; i < confiables.size(); ++i){
-
-			if(votos[i][nodo] > 0){
-				opinionConfiables++;
-				break;
-			}else if(votos[i][nodo] < 0){
-				opinionConfiables--;
-				break;
-			}
-		}
-		return confiabilidad;
-
-	// Si no voto consistentemente retorno que no es confiable
-	}else{
-		confiabilidad = -1;
-		return confiabilidad;
-	}
 }
 
-int recursion(std::vector<std::vector<int> > votos, std::vector<char> confiables, std::vector<char> ortivas, int nodo, int personas){
+bool in(int valor,std::vector<int> v){
+	for (int i = 0; i < v.size(); ++i)
+	{
+		if(valor == v[i]){
+			return true;
+		}
+	}
+	return false;
+}
 
+// Funcion para ver si el conjunto es consistente o no.
+bool consistente(std::vector<std::vector<int> > votos, std::vector<int> confiables, int nodo, int personas){
+
+	bool consistencia = true;
+	// Primero chequeo que no haya inconsistencia entre el nuevo grupo.
+	for(int i = 0; i < confiables.size(); ++i){
+		for (int j = 0; j < confiables.size(); ++j){
+			if(votos[confiables[i]][confiables[j]] < 0){
+				consistencia = false;
+				break;
+			}
+		}
+		
+	}
+	// Ahora chequeo que no haya inconsistencia entre el nuevo grupo
+	// y los no agregados.
+	for (int i = 0; i < confiables.size(); ++i){
+		for (int j = 0; j < nodo && !in(j,confiables); ++j){
+			if(votos[confiables[i]][j] > 0){
+				consistencia = false;
+			break;
+			}	
+		}
+	}
+	//std::cout << consistencia << std::endl;
+	return consistencia;
+}
+
+// Backtracking posta
+int recursion(std::vector<std::vector<int> > votos, std::vector<int> confiables, int nodo, int personas){
+	std::cout << "Nodo: " << nodo  <<std::endl;
+	std::cout << "Confiables: ";
+	imprimirVector(confiables);
+	std::cout << std::endl;
+	
 	//  Si llegue al final, devuelvo el conjunto de confiables
-	if(nodo == personas){
+	if(nodo == personas){ // personas/nodo +1????
+		std::cout << "Llegue a una hoja. Tamaño: " << confiables.size() << std::endl;
 		return confiables.size();
 	}
+
 	else{
-
-		// Si es confiable, lo meto en el conjunto de confiables
-		int confiabilidad = esConfiable(confiables,ortivas,nodo,votos);
-		
-		if(confiabilidad == 1){
-			confiables.push_back(nodo);
-			return recursion(votos,confiables,ortivas,nodo++,personas);
-		}
-		// Si es no es confiable, lo pongo con los ortivas
-		else if(confiabilidad == -1){
-			ortivas.push_back(nodo);
-			return  recursion(votos,confiables,ortivas,nodo++,personas);
-		}
-		// Si nadie lo voto, tengo que llamar la recursion dos veces y tomo el maximo
-		else{
-
-			std::vector<char> confiablesAux = confiables;
-			std::vector<char> ortivasAux = ortivas;
-
-			confiablesAux.push_back(nodo);
-			ortivasAux.push_back(nodo);
-
+		if(consistente(votos,confiables,nodo,personas)){
+			std::cout << "Es consistente" << std::endl;
 			nodo++;
-
-			int asumoConfiable = recursion(votos,confiablesAux,ortivas,nodo,personas);
-			int asumoOrtiva = recursion(votos,confiables,ortivasAux,nodo,personas);
-
-			return std::max(asumoConfiable,asumoOrtiva);
-
-		}
+			std::vector<int> no_agrego = confiables;
+			confiables.push_back(nodo); // agrego el nodo
+			return std::max(recursion(votos,no_agrego,nodo,personas),recursion(votos,confiables,nodo,personas));
+		}else{
+			std::cout << "No es consistente." << std::endl;
+			return 0;
+		}		
 	}
 }
 
-int backtracking(std::vector<std::vector<int> > votos,int personas){
+// Wrapper de la funcion de backtracking posta
+int backtracking(std::vector<std::vector<int> > votos, int personas){
 
-	std::vector<char> confiables;
-	std::vector<char> ortivas;
-
+	std::vector<int> confiables;
+	std::cout << "Pre llamada recursiva: " << confiables.size() << std::endl;
 	int nodo = 0;
 
-	int res = recursion(votos,confiables,ortivas,nodo,personas);
+	int res = recursion(votos,confiables,nodo,personas);
 
 	return res;
 }
