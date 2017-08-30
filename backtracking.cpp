@@ -51,7 +51,7 @@ bool consistente(std::vector<std::vector<int> > votos, std::vector<int> confiabl
 }
 
 // Backtracking posta
-int recursion(std::vector<std::vector<int> > votos, std::vector<int> confiables, int nodo, int personas){
+int recursion(std::vector<std::vector<int> > votos, std::vector<int> confiables, int nodo, int personas,int max){
 	std::cout << "Nodo: " << nodo  <<std::endl;
 	std::cout << "Confiables: ";
 	imprimirVector(confiables);
@@ -64,16 +64,14 @@ int recursion(std::vector<std::vector<int> > votos, std::vector<int> confiables,
 	}
 
 	else{
-		if(consistente(votos,confiables,nodo,personas)){
-			std::cout << "Es consistente" << std::endl;
-			nodo++;
-			std::vector<int> no_agrego = confiables;
-			confiables.push_back(nodo); // agrego el nodo
-			return std::max(recursion(votos,no_agrego,nodo,personas),recursion(votos,confiables,nodo,personas));
-		}else{
-			std::cout << "No es consistente." << std::endl;
-			return 0;
-		}		
+        nodo++;
+        std::vector<int> no_agrego = confiables;
+        confiables.push_back(nodo); // agrego el nodo
+        bool consistencia_agrego = consistente(votos,confiables,nodo,personas);
+        if((consistencia_agrego)){
+		    max = recursion(votos,confiables,nodo,personas,max);
+		}
+        return std::max(max,recursion(votos,no_agrego,nodo,personas,max));
 	}
 }
 
@@ -84,7 +82,7 @@ int backtracking(std::vector<std::vector<int> > votos, int personas){
 	std::cout << "Pre llamada recursiva: " << confiables.size() << std::endl;
 	int nodo = 0;
 
-	int res = recursion(votos,confiables,nodo,personas);
+	int res = recursion(votos,confiables,nodo,personas,0);
 
 	return res;
 }
