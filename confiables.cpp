@@ -1,26 +1,14 @@
 #include "backtracking.cpp"
 
-// Crea una matriz llena de 0s...
-std::vector<std::vector<int> >  crearMatrizDeCeros(int filas, int columnas){
-
-	std::vector<std::vector<int> >  matriz(filas,std::vector<int>(columnas,0));
-
-	return matriz;
-}
-
-void imprimirVotos(std::vector<std::vector<int> > votos, int personas){
-
-	for (int i = 1; i < personas+1; ++i)
-	{
-		for (int j = 1; j < personas+1; ++j)
-		{
-			std::cout << votos[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
-}
-
 int main(int argc, char const *argv[]){	
+	
+	bool con_poda = false;
+	std::cout << argv[1] << std::endl;
+	int poda = atoi(argv[1]);
+	if(poda == 1){
+		con_poda = true;
+	}
+
 	// Me llega por standar input las encuestas
 	// la cantidad de respuestas en la encuesta
 	std::cin;
@@ -58,8 +46,15 @@ int main(int argc, char const *argv[]){
 
 		// Resuelvo este caso con backtracking y guardo el resultado 
         // en el output
-		int res = backtracking(votos,personas);
-
+        int res;
+        if(con_poda){
+        	std::cout << "Con poda." << std::endl;
+			res = backtrackingConPodas(votos,personas);
+		}else{
+        	std::cout << "Sin poda." << std::endl;
+			res = backtracking(votos,personas);
+ 
+		}
 		std::cout;
 		std::cout << "tamaño: " << res << std::endl;
 
