@@ -1,0 +1,18 @@
+# 2-caso.dat
+	Respuesta esperada: 6
+	Posible conjunto óptimo: 1 2 3 4 5 6
+
+# 3-caso.dat
+	Respuesta esperada: 7
+	Posible conjunto óptimo: 1 2 3 6 7 8 9
+
+# 4-caso.dat
+	Respuesta esperada: 12
+	Posible conjunto óptimo: 5 6 7 8 9 10 11 12 13 14 15 16
+
+# 5-caso.dat
+	Respuesta esperada: 0
+
+# 6-caso.dat
+	Respuesta esperada: 1
+	Único conjunto óptimo: 1

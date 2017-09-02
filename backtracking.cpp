@@ -52,7 +52,13 @@ bool consistente(std::vector<std::vector<int> > votos, std::vector<int> confiabl
 				consistencia=false;
 				break;
 			}
-		}	
+		}
+		for (int i = 0; i < nodo ; ++i){
+				if(!in(i,confiables) && votos[nodo][i] > 0){
+					consistencia=false;
+					break;
+				}
+			}	
 	}else{
 		for (int i = 0; i < confiables.size(); ++i){
 			if(votos[confiables[i]][nodo] > 0){
@@ -63,54 +69,31 @@ bool consistente(std::vector<std::vector<int> > votos, std::vector<int> confiabl
 	}
 	return consistencia;
 }
-// Funcion para ver si el conjunto es consistente o no.
-bool consistente2(std::vector<std::vector<int> > votos, std::vector<int> confiables, int nodo, int personas){
-
-	bool consistencia = true;
-	// Primero chequeo que no haya inconsistencia entre el nuevo grupo.
-	for(int i = 0; i < confiables.size(); ++i){
-		for (int j = 0; j < confiables.size(); ++j){
-			if(votos[confiables[i]][confiables[j]] < 0){
-				consistencia = false;
-				break;
-			}
-		}		
-	}
-	// Ahora chequeo que no haya inconsistencia entre el nuevo grupo
-	// y los no agregados.
-	for (int i = 0; i < confiables.size(); ++i){
-		for (int j = 0; j < nodo && !in(j,confiables); ++j){
-			if(votos[confiables[i]][j] > 0){
-				consistencia = false;
-			break;
-			}	
-		}
-	}
-
-	//std::cout << consistencia << std::endl;
-	return consistencia;
-}
-
 
 bool consistenteConPodas(std::vector<std::vector<int> > votos, std::vector<int> confiables, int nodo, int personas){
 
-	bool consistencia = true;
-	if(in(nodo,confiables)){
-		for (int i = 0; i < confiables.size(); ++i)
-		{
+		bool consistencia = true;
+		if(in(nodo,confiables)){
+		for (int i = 0; i < confiables.size(); ++i){
 			if(votos[nodo][confiables[i]] < 0 || votos[confiables[i]][nodo] < 0){
 				consistencia=false;
 				break;
 			}
 		}
 		for (int i = 0; i < confiables.size(); ++i){
-				for (int j = nodo+1; j < personas; ++j){
-					if((votos[nodo][j] > 0 && votos[confiables[i]][nodo] < 0) || (votos[nodo][j] < 0 && votos[confiables[i]][nodo] > 0)){
-						consistencia = false;
-						break;
-					}
+			for (int j = nodo+1; j < personas; ++j){
+				if((votos[nodo][j] > 0 && votos[confiables[i]][j] < 0) || (votos[nodo][j] < 0 && votos[confiables[i]][j] > 0)){
+					consistencia = false;
+					break;
 				}
-			}	
+			}
+		}
+		for (int i = 0; i < nodo; ++i){
+			if(votos[nodo][i] > 0  && !in(i,confiables)){
+				consistencia=false;
+				break;
+			}
+		}	
 	}else{
 		for (int i = 0; i < confiables.size(); ++i){
 			if(votos[confiables[i]][nodo] > 0){
@@ -127,7 +110,7 @@ int recursion(std::vector<std::vector<int> > votos, std::vector<int> confiables,
 	iteracion++;
 	if(!consistente(votos,confiables,nodo,personas)) return 0;
 	// Si llegue al final, devuelvo el conjunto de confiables
-	if(nodo == personas){ // personas/nodo +1????
+	if(nodo >= personas){ // personas/nodo +1????
 		return confiables.size();
 	}
 
@@ -143,8 +126,9 @@ int recursionConPodas(std::vector<std::vector<int> > votos, std::vector<int> con
 	iteracion++;
 	if(max >= personas - nodo + confiables.size() || !consistenteConPodas(votos,confiables,nodo,personas)) return 0;
 	// Si llegue al final, devuelvo el conjunto de confiables
-	if(nodo == personas){ // personas/nodo +????
+	if(nodo >= personas){ // personas/nodo +????
 		if(confiables.size()>max) max = confiables.size();
+		imprimirVector(confiables);
 		return confiables.size();
 	}
 
@@ -160,11 +144,11 @@ int recursionConPodas(std::vector<std::vector<int> > votos, std::vector<int> con
 int backtracking(std::vector<std::vector<int> > votos, int personas){
 
 	std::vector<int> confiables;
-	std::cout << "Pre llamada recursiva: " << confiables.size() << std::endl;
+	//std::cout << "Pre llamada recursiva: " << confiables.size() << std::endl;
 	int nodo = 0;
 	int iteracion = 0;
 	int res = recursion(votos,confiables,nodo,personas,iteracion);
-	std::cout << iteracion << std::endl;
+	//std::cout << iteracion << std::endl;
 	return res;
 }
 
@@ -178,7 +162,7 @@ int backtrackingConPodas(std::vector<std::vector<int> > votos, int personas){
 	int max = 0;
 	int iteracion = 0;
 	int res = recursionConPodas(votos,confiables,nodo,personas,max,iteracion);
-	std::cout << iteracion << std::endl;
+	//std::cout << iteracion << std::endl;
 	return res;
 }
 
