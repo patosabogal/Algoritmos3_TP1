@@ -13,24 +13,36 @@ std::vector<std::vector<int> >  crearMatrizDeCeros(int filas, int columnas){
 
 void imprimirVotos(std::vector<std::vector<int> > votos, int personas){
 
-	for (int i = 1; i < personas+1; ++i)
+	for (int i = 0; i < personas; ++i)
 	{
-		for (int j = 1; j < personas+1; ++j)
+		for (int j = 0; j < personas; ++j)
 		{
-			std::cout << votos[i][j] << " ";
+			if(votos[i][j]>0) std::cout << "+"<< votos[i][j] << " ";
+			else if(votos[i][j]< 0)std::cout <<votos[i][j] << " ";
+			else std::cout << " " << votos[i][j] << " ";
 		}
 		std::cout << std::endl;
 	}
 }
 
+std::vector<int> personas_restantes(int personas){
 
-void imprimirVector(std::vector<int> v){
+	std::vector<int> restantes;
+	for (int i = 0; i <= personas; ++i)
+	{
+		restantes.push_back(i);
+	}
+	return restantes;
+}
 
+
+void imprimirConfiables(std::vector<int> v){
+	std::cout << "Confiables: " << std::endl;
 	for (int i = 0; i < v.size(); ++i)
 	{
-		std::cout << v.at(i) << " ";
+		std::cout << v.at(i)+1 << " ";
 	}
-
+	std::cout << std::endl;
 }
 
 bool in(int valor,std::vector<int> v){
@@ -43,126 +55,127 @@ bool in(int valor,std::vector<int> v){
 	return false;
 }
 
-bool consistente(std::vector<std::vector<int> > votos, std::vector<int> confiables, int nodo, int personas){	
+bool consistente(std::vector<std::vector<int> > votos, std::vector<int> confiables, std::vector<int> recorridos){	
 	bool consistencia = true;
-	if(in(nodo,confiables)){
-		for (int i = 0; i < confiables.size(); ++i)
-		{
-			if(votos[nodo][confiables[i]] < 0 || votos[confiables[i]][nodo] < 0){
-				consistencia=false;
-				break;
-			}
+	for (int i = 0; i < confiables.size(); ++i){
+		// Si lo votaron no confiable o voto a alguien no confiable
+		if(votos[confiables.back()][confiables[i]] < 0 || votos[confiables[i]][confiables.back()] < 0){
+			consistencia=false;
+			break;
 		}
-		for (int i = 0; i < nodo ; ++i){
-				if(!in(i,confiables) && votos[nodo][i] > 0){
+	}
+
+	// Si pido uno ya descartado adentro
+		for (int i = 0; i < confiables.size(); ++i){
+			for (int j = 0; j < recorridos.size(); ++j){
+				if((!in(recorridos[j],confiables)) && (votos[confiables[i]][recorridos[j]]> 0)){
 					consistencia=false;
 					break;
 				}
-			}	
-	}else{
-		for (int i = 0; i < confiables.size(); ++i){
-			if(votos[confiables[i]][nodo] > 0){
-				consistencia=false;
-				break;
 			}
-		}	
-	}
+		}
 	return consistencia;
 }
 
-bool consistenteConPodas(std::vector<std::vector<int> > votos, std::vector<int> confiables, int nodo, int personas){
-
-		bool consistencia = true;
-		if(in(nodo,confiables)){
-		for (int i = 0; i < confiables.size(); ++i){
-			if(votos[nodo][confiables[i]] < 0 || votos[confiables[i]][nodo] < 0){
-				consistencia=false;
-				break;
-			}
-		}
-		for (int i = 0; i < confiables.size(); ++i){
-			for (int j = nodo+1; j < personas; ++j){
-				if((votos[nodo][j] > 0 && votos[confiables[i]][j] < 0) || (votos[nodo][j] < 0 && votos[confiables[i]][j] > 0)){
-					consistencia = false;
-					break;
-				}
-			}
-		}
-		for (int i = 0; i < nodo; ++i){
-			if(votos[nodo][i] > 0  && !in(i,confiables)){
-				consistencia=false;
-				break;
-			}
-		}	
-	}else{
-		for (int i = 0; i < confiables.size(); ++i){
-			if(votos[confiables[i]][nodo] > 0){
-				consistencia=false;
-				break;
-			}
-		}	
-	}
-	return consistencia;
-}
 
 // Backtracking posta
-int recursion(std::vector<std::vector<int> > votos, std::vector<int> confiables, int nodo, int personas,int& iteracion){
-	iteracion++;
-	if(!consistente(votos,confiables,nodo,personas)) return 0;
+int recursion(std::vector<std::vector<int> > votos, std::vector<int> confiables, std::vector<int> recorridos, std::vector<int> restantes){
+
+	if(!consistente(votos,confiables,recorridos)) return 0;
 	// Si llegue al final, devuelvo el conjunto de confiables
-	if(nodo >= personas){ // personas/nodo +1????
+	if(restantes.size() == 0){ // personas/nodo +1????
 		return confiables.size();
 	}
 
 	else{
-		nodo++;
+		int nuevo = restantes.back();
+		restantes.pop_back();
 		std::vector<int> no_agrego = confiables;
-		confiables.push_back(nodo); // agrego el nodo
-		return std::max(recursion(votos,no_agrego,nodo,personas,iteracion),recursion(votos,confiables,nodo,personas,iteracion));
+		confiables.push_back(nuevo); // agrego el nodo
+		recorridos.push_back(nuevo); // agrego el nodo
+		return std::max(recursion(votos,no_agrego,recorridos,restantes),recursion(votos,confiables,recorridos,restantes));
 	}
 }	
 
-int recursionConPodas(std::vector<std::vector<int> > votos, std::vector<int> confiables, int nodo, int personas, int& max, int& iteracion){
-	iteracion++;
-	if(max >= personas - nodo + confiables.size() || !consistenteConPodas(votos,confiables,nodo,personas)) return 0;
-	// Si llegue al final, devuelvo el conjunto de confiables
-	if(nodo >= personas){ // personas/nodo +????
-		if(confiables.size()>max) max = confiables.size();
-		imprimirVector(confiables);
-		return confiables.size();
-	}
-
-	else{
-		nodo++;
-		std::vector<int> no_agrego = confiables;
-		confiables.push_back(nodo); // agrego el nodo
-		return std::max(recursionConPodas(votos,no_agrego,nodo,personas,max,iteracion),recursionConPodas(votos,confiables,nodo,personas,max,iteracion));
-	}
-}
 
 // Wrapper de la funcion de backtracking posta
 int backtracking(std::vector<std::vector<int> > votos, int personas){
 
 	std::vector<int> confiables;
-	//std::cout << "Pre llamada recursiva: " << confiables.size() << std::endl;
-	int nodo = 0;
-	int iteracion = 0;
-	int res = recursion(votos,confiables,nodo,personas,iteracion);
-	//std::cout << iteracion << std::endl;
+	std::vector<int> recorridos;
+	std::vector<int> restantes = personas_restantes(personas);
+	int res = recursion(votos,confiables,recorridos,restantes);
 	return res;
+
 }
 
+
+bool consistenteConPodas(std::vector<std::vector<int> > votos, std::vector<int> confiables, std::vector<int> recorridos, std::vector<int> restantes){
+
+	bool consistencia = true;
+
+		for (int i = 0; i < confiables.size(); ++i){
+			// Si lo votaron no confiable o voto a alguien no confiable
+			if(votos[confiables.back()][confiables[i]] < 0 || votos[confiables[i]][confiables.back()] < 0){
+				consistencia=false;
+				break;
+			}
+		}
+
+		// Si pido uno ya descartado adentro
+		for (int i = 0; i < confiables.size(); ++i){
+			for (int j = 0; j < recorridos.size(); ++j){
+				if(!in(i,confiables) && votos[confiables[i]][recorridos[j]]> 0){
+					consistencia=false;
+					break;
+				}
+			}
+		}
+
+
+		for (int i = 0; i < confiables.size(); ++i){
+			for (int j = 0; j < restantes.size(); ++j){
+				// votos inconsistentes a futuro con los de afuera
+				if((votos[confiables.back()][restantes[j]] > 0 && votos[confiables[i]][restantes[j]] < 0) || (votos[confiables.back()][restantes[j]] < 0 && votos[confiables[i]][restantes[j]] > 0)){
+					consistencia = false;
+					break;
+				}
+			}
+		}
+		
+	return consistencia;
+}
+
+
+int recursionConPodas(std::vector<std::vector<int> > votos, std::vector<int> confiables, std::vector<int> recorridos, std::vector<int> restantes, int& max){
+
+	if(max > restantes.size() + confiables.size() || !consistenteConPodas(votos,confiables,recorridos,restantes)) return 0;
+	// Si llegue al final, devuelvo el conjunto de confiables
+	if(restantes.size()==0){
+		if(confiables.size()>max) max = confiables.size();
+		return confiables.size();
+	}
+
+	else{
+		int nuevo = restantes.back();
+		restantes.pop_back();
+		std::vector<int> no_agrego = confiables;
+		confiables.push_back(nuevo); // agrego el nodo
+		recorridos.push_back(nuevo); // agrego el nodo
+		return std::max(recursionConPodas(votos,no_agrego,recorridos,restantes,max),recursionConPodas(votos,confiables,recorridos,restantes,max));
+	}
+}
 
 
 
 int backtrackingConPodas(std::vector<std::vector<int> > votos, int personas){
 
 	std::vector<int> confiables;
-	int nodo = 0;
+	std::vector<int> recorridos;
+	std::vector<int> restantes = personas_restantes(personas);
 	int max = 0;
-	int iteracion = 0;
-	int res = recursionConPodas(votos,confiables,nodo,personas,max,iteracion);
-	//std::cout << iteracion << std::endl;
+	int res = recursionConPodas(votos,confiables,recorridos,restantes,max);
+
 	return res;
 }
 

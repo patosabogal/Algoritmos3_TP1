@@ -1,4 +1,5 @@
 #include "backtracking.cpp"
+#include <chrono>
 
 int signo(int i){
 	if(i < 0){
@@ -10,22 +11,25 @@ int signo(int i){
 
 int main(int argc, char const *argv[]){	
 	
-	bool con_poda = false;
-	//std::cout << argv[1] << std::endl;
-	int poda = atoi(argv[1]);
-	if(poda == 1){
-		con_poda = true;
-	}
-
 	// Me llega por standar input las encuestas
 	// la cantidad de respuestas en la encuesta
 	std::cin;
 	int personas, respuestas;
 	std::cin >> personas >> respuestas;
 
+
+
 	// Leo el archivo hasta llegar al 0 0 que marca el final
 	while(personas != 0 && respuestas!= 0){
 		
+
+		std::chrono::high_resolution_clock::time_point t1;
+ 		std::chrono::high_resolution_clock::time_point t2;
+ 		std::chrono::high_resolution_clock::time_point t1ConPodas;
+ 		std::chrono::high_resolution_clock::time_point t2ConPodas;
+  		std::chrono::duration<double> time_span;
+  		std::chrono::duration<double> time_spanConPodas;
+
 		// Creo la matriz "votos" donde voy a guardar las 
 		// respuestas de cada persona en la votacion.
 		// En la posicion votos[i][j] guardo "1" o "-1" si la 
@@ -48,23 +52,22 @@ int main(int argc, char const *argv[]){
 				votos[i][abs(j)-1] = signo(j);
 			}else if (signo(j) != votos[i][abs(j)-1]){
 				votos[i][abs(j)-1] = -1;
+				votos[i][i] = -1;
 			}
 		}
 
-		//imprimirVotos(votos,personas);
+
 		personas--;
 		// Resuelvo este caso con backtracking y guardo el resultado 
         // en el output
         int res;
-        if(con_poda){
-        	//std::cout << "Con poda." << std::endl;
-			res = backtrackingConPodas(votos,personas);
-		}else{
-        	//std::cout << "Sin poda." << std::endl;
-			res = backtracking(votos,personas);
- 
-		}
-		std::cout << res << std::endl;
+        int resPodas;
+
+		res = backtracking(votos,personas);
+		resPodas = backtrackingConPodas(votos,personas)
+
+		std::cout << res  << resPodas << std::endl;
+
 
 		// Leo la nueva encuesta
 		std::cin >> personas >> respuestas;
