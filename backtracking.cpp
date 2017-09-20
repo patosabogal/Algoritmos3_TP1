@@ -110,7 +110,7 @@ int backtracking(std::vector<std::vector<int> > votos, int personas){
 }
 
 
-bool consistenteConPodas(std::vector<std::vector<int> > votos, std::vector<int> confiables, std::vector<int> recorridos, std::vector<int> restantes){
+bool consistenteConPoda(std::vector<std::vector<int> > votos, std::vector<int> confiables, std::vector<int> recorridos, std::vector<int> restantes){
 
 	bool consistencia = true;
 
@@ -147,12 +147,12 @@ bool consistenteConPodas(std::vector<std::vector<int> > votos, std::vector<int> 
 }
 
 
-int recursionConPodas(std::vector<std::vector<int> > votos, std::vector<int> confiables, std::vector<int> recorridos, std::vector<int> restantes, int& max){
+int recursionConPodas(std::vector<std::vector<int> > votos, std::vector<int> confiables, std::vector<int> recorridos, std::vector<int> restantes, int& solucionMax){
 
-	if(max > restantes.size() + confiables.size() || !consistenteConPodas(votos,confiables,recorridos,restantes)) return 0;
+	if(solucionMax > restantes.size() + confiables.size() || !consistenteConPoda(votos,confiables,recorridos,restantes)) return 0;
 	// Si llegue al final, devuelvo el conjunto de confiables
 	if(restantes.size()==0){
-		if(confiables.size()>max) max = confiables.size();
+		if(confiables.size()> solucionMax) solucionMax = confiables.size();
 		return confiables.size();
 	}
 
@@ -162,7 +162,7 @@ int recursionConPodas(std::vector<std::vector<int> > votos, std::vector<int> con
 		std::vector<int> no_agrego = confiables;
 		confiables.push_back(nuevo); // agrego el nodo
 		recorridos.push_back(nuevo); // agrego el nodo
-		return std::max(recursionConPodas(votos,no_agrego,recorridos,restantes,max),recursionConPodas(votos,confiables,recorridos,restantes,max));
+		return std::max(recursionConPodas(votos,no_agrego,recorridos,restantes,solucionMax),recursionConPodas(votos,confiables,recorridos,restantes,solucionMax));
 	}
 }
 
@@ -173,9 +173,68 @@ int backtrackingConPodas(std::vector<std::vector<int> > votos, int personas){
 	std::vector<int> confiables;
 	std::vector<int> recorridos;
 	std::vector<int> restantes = personas_restantes(personas);
-	int max = 0;
-	int res = recursionConPodas(votos,confiables,recorridos,restantes,max);
+	int solucionMax = 0;
+	int res = recursionConPodas(votos,confiables,recorridos,restantes,solucionMax);
 
 	return res;
 }
 
+int recursionConPodaMax(std::vector<std::vector<int> > votos, std::vector<int> confiables, std::vector<int> recorridos, std::vector<int> restantes, int& solucionMax){
+
+	if(solucionMax > restantes.size() + confiables.size() || !consistente(votos,confiables,recorridos)) return 0;
+	// Si llegue al final, devuelvo el conjunto de confiables
+	if(restantes.size()==0){
+		if(confiables.size() > solucionMax) solucionMax = confiables.size();
+		return confiables.size();
+	}
+
+	else{
+		int nuevo = restantes.back();
+		restantes.pop_back();
+		std::vector<int> no_agrego = confiables;
+		confiables.push_back(nuevo); // agrego el nodo
+		recorridos.push_back(nuevo); // agrego el nodo
+		return std::max(recursionConPodaMax(votos,no_agrego,recorridos,restantes,solucionMax),recursionConPodaMax(votos,confiables,recorridos,restantes,solucionMax));
+	}
+}
+
+
+int backtrackingConPodaMax(std::vector<std::vector<int> > votos, int personas){
+
+	std::vector<int> confiables;
+	std::vector<int> recorridos;
+	std::vector<int> restantes = personas_restantes(personas);
+	int solucionMax = 0;
+	int res = recursionConPodaMax(votos,confiables,recorridos,restantes,solucionMax);
+
+	return res;
+}
+
+int recursionConPodaFut(std::vector<std::vector<int> > votos, std::vector<int> confiables, std::vector<int> recorridos, std::vector<int> restantes){
+
+	if(!consistenteConPoda(votos,confiables,recorridos,restantes)) return 0;
+	// Si llegue al final, devuelvo el conjunto de confiables
+	if(restantes.size()==0){
+		return confiables.size();
+	}
+
+	else{
+		int nuevo = restantes.back();
+		restantes.pop_back();
+		std::vector<int> no_agrego = confiables;
+		confiables.push_back(nuevo); // agrego el nodo
+		recorridos.push_back(nuevo); // agrego el nodo
+		return std::max(recursionConPodaFut(votos,no_agrego,recorridos,restantes),recursionConPodaFut(votos,confiables,recorridos,restantes));
+	}
+}
+
+
+int backtrackingConPodaFut(std::vector<std::vector<int> > votos, int personas){
+
+	std::vector<int> confiables;
+	std::vector<int> recorridos;
+	std::vector<int> restantes = personas_restantes(personas);
+	int res = recursionConPodaFut(votos,confiables,recorridos,restantes);
+
+	return res;
+}

@@ -17,6 +17,9 @@ int main(int argc, char const *argv[]){
 	int personas, respuestas;
 	std::cin >> personas >> respuestas;
 
+	if(argc != 2 || argv[1] != "1" && argv[1] != "2" && argv[1] != "3" && argv[1] != "4"){
+		std::cerr << "Parametros Incorrectos; El programa toma los siguientes paramentros:\n 	1- Backtracking sin podas. \n 	2- Backtracking solo con la poda de optimizacion a futuro.\n 	3- Backtracking solo con la poda de solucion mas grande.\n 	4- Backtracking con las dos podas.\n";		return 0;
+	}
 
 
 	// Leo el archivo hasta llegar al 0 0 que marca el final
@@ -61,12 +64,20 @@ int main(int argc, char const *argv[]){
 		// Resuelvo este caso con backtracking y guardo el resultado 
         // en el output
         int res;
-        int resPodas;
 
-		res = backtracking(votos,personas);
-		resPodas = backtrackingConPodas(votos,personas)
+        if(argv[1] == "1"){
+			res = backtracking(votos,personas);
+        }
+        else if(argv[1] == "2"){
+			res = backtrackingConPodaMax(votos,personas);
+        }
+        else if(argv[1] == "3")
+		 	res = backtrackingConPodaFut(votos,personas);
+		else {
+			res = backtrackingConPodas(votos,personas);
+		}
 
-		std::cout << res  << resPodas << std::endl;
+		std::cout << res  << std::endl;
 
 
 		// Leo la nueva encuesta
